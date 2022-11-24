@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch } from "vue";
 
-const colors = ["red", "blue", "green", "green", "yellow", "blue", "red"];
+const colors = ["red", "blue"];
 const lastResponseColor = ref("");
 const lastResponseIndex = ref(-1);
 
@@ -41,7 +41,7 @@ const sendNotification = () => {
   Notification.requestPermission().then((result) => {
     if (result === "granted") {
       const notifTitle = "Simon game";
-      const notifBody = `Suuuu`;
+      const notifBody = `Vous avez gagné !`;
       const options = {
         body: notifBody,
       };
@@ -49,8 +49,6 @@ const sendNotification = () => {
     }
   });
 };
-
-sendNotification();
 
 const runGame = () => {
   index.value = 0;
@@ -66,8 +64,8 @@ watch(startGame, () => {
   if (startGame.value) {
     gameLost.value = false;
     gameWin.value = false;
-    lastResponseColor.value = "";
     lastResponseIndex.value = -1;
+    active.value = null;
     runGame();
   }
 });
@@ -103,6 +101,7 @@ const setResponse = (color) => {
 watch(lastResponseColor, () => {
   if (lastResponseColor.value === colors[lastResponseIndex.value]) {
     if (lastResponseIndex.value === colors.length - 1) {
+      sendNotification();
       gameWin.value = true;
       startGame.value = false;
       canPlay.value = false;
