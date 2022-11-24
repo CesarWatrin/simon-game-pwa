@@ -10,6 +10,32 @@ const index = ref(-1);
 const startGame = ref(false);
 const canPlay = ref(false);
 const gameLost = ref(false);
+const gameWin = ref(false);
+
+const tellColor = (color) => {
+  if ("speechSynthesis" in window) {
+    let synthesis = window.speechSynthesis;
+
+    // Get the first en language voice in the list
+    let voice = synthesis.getVoices().filter(function (voice) {
+      return voice.lang === "en";
+    })[0];
+
+    // Create an utterance object
+    let utterance = new SpeechSynthesisUtterance(color);
+
+    // Set utterance properties
+    utterance.voice = voice;
+    utterance.pitch = 1.5;
+    utterance.rate = 1.25;
+    utterance.volume = 2;
+
+    // Speak the utterance
+    synthesis.speak(utterance);
+  } else {
+    console.log("Text-to-speech not supported.");
+  }
+};
 
 const runGame = () => {
   index.value = 0;
@@ -24,6 +50,9 @@ const stopGame = () => {
 watch(startGame, () => {
   if (startGame.value) {
     gameLost.value = false;
+    gameWin.value = false;
+    lastResponseColor.value = "";
+    lastResponseIndex.value = -1;
     runGame();
   }
 });
@@ -39,8 +68,11 @@ const nextColor = () => {
 
 watch(index, () => {
   if (index.value >= 0 && index.value < colors.length) {
-    active.value = colors[index.value];
-    nextColor();
+    tellColor(colors[index.value]);
+    setTimeout(() => {
+      active.value = colors[index.value];
+      nextColor();
+    }, 700);
   } else if (index.value === colors.length) {
     stopGame();
   }
@@ -55,10 +87,16 @@ const setResponse = (color) => {
 
 watch(lastResponseColor, () => {
   if (lastResponseColor.value === colors[lastResponseIndex.value]) {
-    console.log("yes");
+    if (lastResponseIndex.value === colors.length - 1) {
+      gameWin.value = true;
+      startGame.value = false;
+      canPlay.value = false;
+    }
+    tellColor(colors[lastResponseIndex.value]);
   } else {
     gameLost.value = true;
     startGame.value = false;
+    canPlay.value = false;
   }
 });
 </script>
@@ -108,13 +146,16 @@ watch(lastResponseColor, () => {
           @click="setResponse('blue')"
         ></div>
       </div>
-      <div v-if="startGame && !gameLost" class="m-10 font-bold">
+      <div v-if="startGame && !gameLost && !gameWin" class="m-10 font-bold">
         <span :class="canPlay ? 'text-green-500' : ''">{{
           canPlay ? "Répétez la séquence" : "Retenez la séquence"
         }}</span>
       </div>
       <div v-if="gameLost" class="m-10 font-bold">
         <span class="text-red-600 font-bold">Vous avez perdu !</span>
+      </div>
+      <div v-if="gameWin" class="m-10 font-bold">
+        <span class="text-green-500 font-bold">Vous avez gagné !</span>
       </div>
     </div>
   </div>
