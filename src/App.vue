@@ -1,6 +1,7 @@
 <script setup>
+import Game from "./components/Game.vue";
 </script>
 
 <template>
-  <div>salut</div>
+  <Game />
 </template>
