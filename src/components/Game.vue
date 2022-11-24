@@ -37,6 +37,21 @@ const tellColor = (color) => {
   }
 };
 
+const sendNotification = () => {
+  Notification.requestPermission().then((result) => {
+    if (result === "granted") {
+      const notifTitle = "Simon game";
+      const notifBody = `Suuuu`;
+      const options = {
+        body: notifBody,
+      };
+      new Notification(notifTitle, options);
+    }
+  });
+};
+
+sendNotification();
+
 const runGame = () => {
   index.value = 0;
 };
