@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch } from "vue";
 
-const colors = ["red", "blue"];
+const colors = ["red"];
 const lastResponseColor = ref("");
 const lastResponseIndex = ref(-1);
 
@@ -101,10 +101,10 @@ const setResponse = (color) => {
 watch(lastResponseColor, () => {
   if (lastResponseColor.value === colors[lastResponseIndex.value]) {
     if (lastResponseIndex.value === colors.length - 1) {
-      sendNotification();
       gameWin.value = true;
       startGame.value = false;
       canPlay.value = false;
+      sendNotification();
     }
     tellColor(colors[lastResponseIndex.value]);
   } else {
